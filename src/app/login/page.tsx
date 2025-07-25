@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LoginPage() {
-  const session = useSession();
+  const { session, isLoading } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (session) {
+    if (!isLoading && session) {
       router.replace("/dashboard");
     }
-  }, [session, router]);
+  }, [session, isLoading, router]);
 
   return (
     <main className="min-w-screen min-h-screen flex items-center justify-center">
