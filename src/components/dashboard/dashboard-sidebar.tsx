@@ -1,5 +1,5 @@
 import NavMain from "@/components/dashboard/nav-main";
-import NavSecondary from "@/components/dashboard/nav-secondaty";
+import NavSecondary from "@/components/dashboard/nav-secondary";
 import {
   Sidebar,
   SidebarContent,
