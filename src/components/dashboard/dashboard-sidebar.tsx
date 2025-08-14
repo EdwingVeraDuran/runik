@@ -16,7 +16,6 @@ import {
   Logs,
   Receipt,
   ShoppingBag,
-  Stamp,
   Store,
   Tag,
   Truck,
@@ -75,11 +74,6 @@ const data = {
       icon: Tag,
     },
     {
-      title: "Etiquetas",
-      url: "/dashboard/tags",
-      icon: Stamp,
-    },
-    {
       title: "Proveedores",
       url: "/dashboard/suppliers",
       icon: Warehouse,
@@ -97,7 +91,7 @@ const data = {
       icon: Users,
     },
     {
-      title: "Pedidos",
+      title: "Ordenes",
       url: "/dashboard/clients-orders",
       icon: Receipt,
     },

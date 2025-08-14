@@ -27,7 +27,7 @@ export default function NavMain({
                 <Link href={item.url}>
                   <SidebarMenuButton tooltip={item.title}>
                     {item.icon && <item.icon />}
-                    <span>{item.title}</span>
+                    <span className="font-semibold">{item.title}</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
