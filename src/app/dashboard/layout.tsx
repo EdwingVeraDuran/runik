@@ -26,7 +26,7 @@ export default function DashboardLayout({
       <DashboardSidebar />
       <SidebarInset>
         <DashboardSiteHeader />
-        <section>{children}</section>
+        <section className="px-8 py-10 bg-background">{children}</section>
       </SidebarInset>
     </SidebarProvider>
   );
