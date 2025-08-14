@@ -55,17 +55,17 @@ export default function CategoryTile({ category, onUpdate }: CategoryTileProps) 
       ) : (
         <span>{category.name}</span>
       )}
-      <Button variant="outline" size="icon" className="size-7">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="outline" size="icon" >
             <EllipsisVertical />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
-            <DropdownMenuItem onClick={() => setIsEditing(true)}>Editar</DropdownMenuItem>
-            <DropdownMenuItem>Eliminar</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </Button>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
+          <DropdownMenuItem onClick={() => setIsEditing(true)}>Editar</DropdownMenuItem>
+          <DropdownMenuItem>Eliminar</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div >
   );
 }
