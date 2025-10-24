@@ -56,7 +56,7 @@ export default function CategoryTile({ category, onUpdate }: CategoryTileProps) 
         <span>{category.name}</span>
       )}
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" >
             <EllipsisVertical />
           </Button>
