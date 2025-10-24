@@ -1,4 +1,9 @@
-import { createCategoryService, readCategoriesService, updateCategoryService, deleteCategoryService } from "@/features/product-categories/services/categoryService";
+import {
+  createCategoryService,
+  readCategoriesService,
+  updateCategoryService,
+  deleteCategoryService,
+} from "@/features/product-categories/services/categoryService";
 import { ProductCategory } from "@/features/product-categories/types/category";
 import { useEffect, useState } from "react";
 
@@ -8,7 +13,9 @@ export function useCategories() {
   const [error, setError] = useState<string | null>(null);
 
   // Add Category
-  async function addCategory(category: Omit<ProductCategory, "id" | "created_at">) {
+  async function addCategory(
+    category: Omit<ProductCategory, "id" | "created_at">
+  ) {
     try {
       await createCategoryService(category);
       fetchCategories();
@@ -54,5 +61,13 @@ export function useCategories() {
     fetchCategories();
   }, []);
 
-  return { categories, loading, error, addCategory, updateCategory, deleteCategory, refresh: fetchCategories };
+  return {
+    categories,
+    loading,
+    error,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    refresh: fetchCategories,
+  };
 }

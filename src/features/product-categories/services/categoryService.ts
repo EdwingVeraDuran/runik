@@ -5,7 +5,10 @@ const categoriesTable = "categories";
 
 // Read Operation
 export const readCategoriesService = async (): Promise<ProductCategory[]> => {
-  const { data, error } = await supabase.from(categoriesTable).select("*").order("name", { ascending: true });
+  const { data, error } = await supabase
+    .from(categoriesTable)
+    .select("*")
+    .order("name", { ascending: true });
   if (error) throw new Error(error.message);
   return data || [];
 };
