@@ -1,4 +1,4 @@
-import { ProductBrand } from "@/features/brands/types/brand";
+import { ProductBrand } from "@/features/product-brands/types/brand";
 import { supabase } from "@/lib/supabase";
 
 const brandsTable = "brands";
