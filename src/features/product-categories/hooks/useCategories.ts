@@ -1,73 +1,114 @@
 import {
   createCategoryService,
+  deleteCategoryService,
   readCategoriesService,
   updateCategoryService,
-  deleteCategoryService,
 } from "@/features/product-categories/services/categoryService";
-import { ProductCategory } from "@/features/product-categories/types/category";
-import { useEffect, useState } from "react";
+import {
+  CategoryDraft,
+  CategoryUpdatePayload,
+  ProductCategory,
+} from "@/features/product-categories/types/category";
+import { useCallback, useEffect, useState } from "react";
+
+const sortCategoriesByName = (items: ProductCategory[]) =>
+  [...items].sort((a, b) => a.name.localeCompare(b.name));
 
 export function useCategories() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Add Category
-  async function addCategory(
-    category: Omit<ProductCategory, "id" | "created_at">
-  ) {
-    try {
-      await createCategoryService(category);
-      fetchCategories();
-    } catch (error) {
-      setError((error as Error).message);
-    }
-  }
+  const captureError = useCallback((err: unknown) => {
+    const message =
+      err instanceof Error && err.message
+        ? err.message
+        : "Ocurrio un error con las categorias.";
+    setError(message);
+    return message;
+  }, []);
 
-  // Read Categories
-  async function fetchCategories() {
+  const fetchCategories = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
       const data = await readCategoriesService();
-      setCategories(data);
-      setError(null);
-    } catch (error) {
-      setError((error as Error).message);
+      setCategories(sortCategoriesByName(data));
+    } catch (err) {
+      captureError(err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
-
-  // Update Category
-  async function updateCategory(category: Omit<ProductCategory, "created_at">) {
-    try {
-      await updateCategoryService(category.id, category);
-      fetchCategories();
-    } catch (error) {
-      setError((error as Error).message);
-    }
-  }
-
-  // Delete Category
-  async function deleteCategory(id: string) {
-    try {
-      await deleteCategoryService(id);
-    } catch (error) {
-      setError((error as Error).message);
-    }
-  }
+  }, [captureError]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
+
+  const addCategory = useCallback(
+    async (payload: CategoryDraft) => {
+      setError(null);
+
+      try {
+        const created = await createCategoryService(payload);
+        setCategories((prev) => sortCategoriesByName([...prev, created]));
+      } catch (err) {
+        captureError(err);
+        throw err;
+      }
+    },
+    [captureError],
+  );
+
+  const updateCategory = useCallback(
+    async ({ id, name }: CategoryUpdatePayload) => {
+      setError(null);
+
+      try {
+        const updated = await updateCategoryService(id, { name });
+        setCategories((prev) =>
+          sortCategoriesByName(
+            prev.map((category) =>
+              category.id === updated.id ? updated : category,
+            ),
+          ),
+        );
+      } catch (err) {
+        captureError(err);
+        throw err;
+      }
+    },
+    [captureError],
+  );
+
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      setError(null);
+
+      try {
+        await deleteCategoryService(id);
+        setCategories((prev) =>
+          prev.filter((category) => category.id !== id),
+        );
+      } catch (err) {
+        captureError(err);
+        throw err;
+      }
+    },
+    [captureError],
+  );
+
+  const clearError = useCallback(() => setError(null), []);
 
   return {
     categories,
-    loading,
+    isLoading,
     error,
     addCategory,
     updateCategory,
     deleteCategory,
     refresh: fetchCategories,
+    clearError,
   };
 }

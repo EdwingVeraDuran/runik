@@ -1,11 +1,22 @@
-import React from "react";
+import { cn } from "@/lib/utils";
 
 type CategoryListProps = {
   children: React.ReactNode;
-}
+  className?: string;
+};
 
-export default function CategoryList({ children }: CategoryListProps) {
-  return <div className="flex flex-col border border-gray-300 rounded-md shadow-xs divide-y px-4">
-    {children}
-  </div>
+export default function CategoryList({
+  children,
+  className,
+}: CategoryListProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col divide-y overflow-hidden rounded-md border border-border bg-card shadow-sm",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }

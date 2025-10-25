@@ -1,3 +1,3 @@
 export * from "./types/category";
-export * from "./services/categoryService"
-export * from "./hooks/useCategories"
+export * from "./services/categoryService";
+export * from "./hooks/useCategories";
