@@ -1,12 +1,18 @@
-import React from "react";
+import { cn } from "@/lib/utils";
 
 type BrandListProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
-export default function BrandList({ children }: BrandListProps) {
+export default function BrandList({ children, className }: BrandListProps) {
   return (
-    <div className="flex flex-col border border-gray-300 rounded-md shadow-xs divide-y px-4">
+    <div
+      className={cn(
+        "flex flex-col divide-y overflow-hidden rounded-md border border-border bg-card shadow-sm",
+        className,
+      )}
+    >
       {children}
     </div>
   );

@@ -1,40 +1,55 @@
-import { ProductBrand } from "@/features/product-brands/types/brand";
+import {
+  BrandDraft,
+  ProductBrand,
+} from "@/features/product-brands/types/brand";
 import { supabase } from "@/lib/supabase";
 
 const brandsTable = "brands";
 
-// Read Brands
-export const readBrandsService = async (): Promise<ProductBrand[]> => {
+export async function readBrandsService(): Promise<ProductBrand[]> {
   const { data, error } = await supabase
     .from(brandsTable)
     .select("*")
     .order("name", { ascending: true });
-  if (error) throw new Error(error.message);
-  return data || [];
-};
 
-// Create Brand
-export const createBrandService = async (
-  brand: Omit<ProductBrand, "id" | "created_at">
-) => {
-  const { error } = await supabase.from(brandsTable).insert(brand);
   if (error) throw new Error(error.message);
-};
+  return data ?? [];
+}
 
-// Delete operation
-export const deleteBrandService = async (id: string) => {
-  const { error } = await supabase.from(brandsTable).delete().eq("id", id);
-  if (error) throw new Error(error.message);
-};
-
-// Update operation
-export const updateBrandService = async (
-  id: string,
-  updatedFields: Partial<Omit<ProductBrand, "id" | "created_at">>
-) => {
-  const { error } = await supabase
+export async function createBrandService(
+  payload: BrandDraft,
+): Promise<ProductBrand> {
+  const { data, error } = await supabase
     .from(brandsTable)
-    .update(updatedFields)
-    .eq("id", id);
+    .insert(payload)
+    .select()
+    .single();
+
   if (error) throw new Error(error.message);
-};
+  if (!data) throw new Error("No pudimos crear la marca.");
+
+  return data as ProductBrand;
+}
+
+export async function updateBrandService(
+  id: string,
+  payload: BrandDraft,
+): Promise<ProductBrand> {
+  const { data, error } = await supabase
+    .from(brandsTable)
+    .update(payload)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("No pudimos actualizar la marca.");
+
+  return data as ProductBrand;
+}
+
+export async function deleteBrandService(id: string): Promise<void> {
+  const { error } = await supabase.from(brandsTable).delete().eq("id", id);
+
+  if (error) throw new Error(error.message);
+}

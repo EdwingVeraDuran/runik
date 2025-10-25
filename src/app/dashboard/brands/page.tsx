@@ -3,63 +3,101 @@
 import SectionTitle from "@/components/dashboard/section-title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import CategoryList from "@/features/product-categories/components/CategoryList";
-import CategoryTile from "@/features/product-categories/components/CategoryTile";
+import BrandList from "@/features/product-brands/components/BrandList";
+import BrandTile from "@/features/product-brands/components/BrandTile";
 import { useBrands } from "@/features/product-brands/hooks/useBrands";
 import React, { useState } from "react";
 
 export default function BrandsPage() {
   const [name, setName] = useState("");
-  const {
-    brands,
-    loading,
-    error,
-    addBrand,
-    updateBrand,
-    deleteBrand,
-    refresh,
-  } = useBrands();
+  const [isCreating, setIsCreating] = useState(false);
+  const { brands, isLoading, error, addBrand, updateBrand, deleteBrand } =
+    useBrands();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       return;
     }
 
-    addBrand({ name });
-    setName("");
+    try {
+      setIsCreating(true);
+      await addBrand({ name: trimmedName });
+      setName("");
+    } catch {
+      // El hook ya maneja el estado de error
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleDelete = async (brandId: string) => {
+    const shouldDelete = window.confirm(
+      "Eliminaras esta marca y no podras recuperarla. Deseas continuar?",
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await deleteBrand(brandId);
+    } catch {
+      // El hook ya maneja el estado de error
+    }
   };
 
   return (
-    <>
-      <section className="flex justify-center">
-        <div className="w-full max-w-[600] flex flex-col gap-4">
-          <SectionTitle title="Marcas" />
-          <form
-            className="flex justify-between items-center gap-4"
-            onSubmit={handleSubmit}
-          >
-            <Input
-              id="name"
-              type="text"
-              placeholder="Nombre de marca"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Button>Crear marca</Button>
-          </form>
-          <CategoryList>
+    <section className="flex justify-center">
+      <div className="flex w-full max-w-[600px] flex-col gap-6">
+        <SectionTitle title="Marcas" />
+
+        <form
+          className="flex items-center gap-4"
+          onSubmit={handleSubmit}
+        >
+          <Input
+            id="brand-name"
+            type="text"
+            placeholder="Nombre de marca"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            autoComplete="off"
+          />
+          <Button type="submit" disabled={isCreating}>
+            {isCreating ? "Creando..." : "Crear marca"}
+          </Button>
+        </form>
+
+        {error && (
+          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+            {error}
+          </p>
+        )}
+
+        {isLoading ? (
+          <p className="px-3 py-2 text-sm text-muted-foreground">
+            Cargando marcas...
+          </p>
+        ) : brands.length ? (
+          <BrandList>
             {brands.map((brand) => (
-              <CategoryTile
+              <BrandTile
                 key={brand.id}
-                category={brand}
+                brand={brand}
                 onUpdate={updateBrand}
+                onDelete={handleDelete}
               />
             ))}
-          </CategoryList>
-        </div>
-      </section>
-    </>
+          </BrandList>
+        ) : (
+          <p className="rounded-md border border-dashed border-muted-foreground/40 px-6 py-8 text-center text-sm text-muted-foreground">
+            Aun no tienes marcas. Agrega la primera para comenzar.
+          </p>
+        )}
+      </div>
+    </section>
   );
 }

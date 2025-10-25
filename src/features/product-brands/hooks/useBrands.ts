@@ -4,62 +4,109 @@ import {
   readBrandsService,
   updateBrandService,
 } from "@/features/product-brands/services/brandService";
-import { ProductBrand } from "@/features/product-brands/types/brand";
-import { useEffect, useState } from "react";
+import {
+  BrandDraft,
+  BrandUpdatePayload,
+  ProductBrand,
+} from "@/features/product-brands/types/brand";
+import { useCallback, useEffect, useState } from "react";
+
+const sortBrandsByName = (items: ProductBrand[]) =>
+  [...items].sort((a, b) => a.name.localeCompare(b.name));
 
 export function useBrands() {
   const [brands, setBrands] = useState<ProductBrand[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function addBrand(brand: Omit<ProductBrand, "id" | "created_at">) {
-    try {
-      await createBrandService(brand);
-      fetchBrands();
-    } catch (error) {
-      setError((error as Error).message);
-    }
-  }
+  const captureError = useCallback((err: unknown) => {
+    const message =
+      err instanceof Error && err.message
+        ? err.message
+        : "Ocurrio un error con las marcas.";
+    setError(message);
+    return message;
+  }, []);
 
-  async function fetchBrands() {
+  const fetchBrands = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
       const data = await readBrandsService();
-      setBrands(data);
-    } catch (error) {
-      setError((error as Error).message);
+      setBrands(sortBrandsByName(data));
+    } catch (err) {
+      captureError(err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
-
-  async function updateBrand(brand: Omit<ProductBrand, "created_at">) {
-    try {
-      await updateBrandService(brand.id, brand);
-    } catch (error) {
-      setError((error as Error).message);
-    }
-  }
-
-  async function deleteBrand(id: string) {
-    try {
-      await deleteBrandService(id);
-    } catch (error) {
-      setError((error as Error).message);
-    }
-  }
+  }, [captureError]);
 
   useEffect(() => {
     fetchBrands();
-  }, []);
+  }, [fetchBrands]);
+
+  const addBrand = useCallback(
+    async (payload: BrandDraft) => {
+      setError(null);
+
+      try {
+        const created = await createBrandService(payload);
+        setBrands((prev) => sortBrandsByName([...prev, created]));
+      } catch (err) {
+        captureError(err);
+        throw err;
+      }
+    },
+    [captureError],
+  );
+
+  const updateBrand = useCallback(
+    async ({ id, name }: BrandUpdatePayload) => {
+      setError(null);
+
+      try {
+        const updated = await updateBrandService(id, { name });
+        setBrands((prev) =>
+          sortBrandsByName(
+            prev.map((brand) =>
+              brand.id === updated.id ? updated : brand,
+            ),
+          ),
+        );
+      } catch (err) {
+        captureError(err);
+        throw err;
+      }
+    },
+    [captureError],
+  );
+
+  const deleteBrand = useCallback(
+    async (id: string) => {
+      setError(null);
+
+      try {
+        await deleteBrandService(id);
+        setBrands((prev) => prev.filter((brand) => brand.id !== id));
+      } catch (err) {
+        captureError(err);
+        throw err;
+      }
+    },
+    [captureError],
+  );
+
+  const clearError = useCallback(() => setError(null), []);
 
   return {
     brands,
-    loading,
+    isLoading,
     error,
     addBrand,
     updateBrand,
     deleteBrand,
     refresh: fetchBrands,
+    clearError,
   };
 }
