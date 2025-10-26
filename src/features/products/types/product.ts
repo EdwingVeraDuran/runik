@@ -9,7 +9,6 @@ export type Product = {
   buyPrice: number;
   sellPrice: number;
   stock: number;
-  created_at: string;
 };
 
 export type ProductDraft = {

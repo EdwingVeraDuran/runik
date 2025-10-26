@@ -3,9 +3,9 @@
 import SectionTitle from "@/components/dashboard/section-title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import CreateProductDialog from "@/features/products/components/dialogs/CreateProductDialog";
 import ProductsTable from "@/features/products/components/ProductsTable";
 import { useProducts } from "@/features/products/hooks/useProducts";
-import Link from "next/link";
 import { useState } from "react";
 
 export default function ProductsPage() {
@@ -17,6 +17,7 @@ export default function ProductsPage() {
     clearError,
     refresh,
     totalProducts,
+    addProduct,
   } = useProducts({ query });
 
   return (
@@ -30,14 +31,14 @@ export default function ProductsPage() {
         </div>
 
         <div className="flex flex-col gap-4 rounded-md border border-border bg-card p-4 shadow-sm">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3">
             <Input
               id="product-search"
               type="search"
               placeholder="Buscar por codigo, nombre, categoria o marca"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="max-w-md"
+              className="w-full"
             />
             <Button
               type="button"
@@ -50,9 +51,7 @@ export default function ProductsPage() {
             >
               Limpiar
             </Button>
-            <Button type="button" asChild>
-              <Link href="/dashboard/products/new">Crear producto</Link>
-            </Button>
+            <CreateProductDialog onCreate={addProduct} />
           </div>
 
           {error && (

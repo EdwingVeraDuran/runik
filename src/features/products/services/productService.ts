@@ -8,31 +8,27 @@ import { supabase } from "@/lib/supabase";
 const productsTable = "products";
 
 export async function readProductsService(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from(productsTable)
-    .select(
-      `
+  const { data, error } = await supabase.from(productsTable).select(
+    `
         id,
         code,
         name,
         buy_price,
         sell_price,
         stock,
-        created_at,
         category_id,
         brand_id,
         categories:categories(id, name),
         brands:brands(id, name)
-      `,
-    )
-    .order("created_at", { ascending: false });
+      `
+  );
 
   if (error) throw new Error(error.message);
   return data?.map(mapRowToProduct) ?? [];
 }
 
 export async function createProductService(
-  payload: ProductDraft,
+  payload: ProductDraft
 ): Promise<Product> {
   const record = mapDraftToRecord(payload);
   const { data, error } = await supabase
@@ -46,12 +42,11 @@ export async function createProductService(
         buy_price,
         sell_price,
         stock,
-        created_at,
         category_id,
         brand_id,
         categories:categories(id, name),
         brands:brands(id, name)
-      `,
+      `
     )
     .single();
 
@@ -62,7 +57,7 @@ export async function createProductService(
 }
 
 export async function updateProductService(
-  payload: ProductUpdatePayload,
+  payload: ProductUpdatePayload
 ): Promise<Product> {
   const { id, ...changes } = payload;
   const record = mapDraftToRecord(changes);
@@ -79,12 +74,11 @@ export async function updateProductService(
         buy_price,
         sell_price,
         stock,
-        created_at,
         category_id,
         brand_id,
         categories:categories(id, name),
         brands:brands(id, name)
-      `,
+      `
     )
     .single();
 
@@ -112,7 +106,6 @@ type ProductRow = {
   buy_price: number;
   sell_price: number;
   stock: number;
-  created_at: string;
   category_id: string;
   brand_id: string;
   categories?: RelationRow | RelationRow[] | null;
@@ -132,11 +125,10 @@ const mapRowToProduct = (row: ProductRow): Product => ({
   buyPrice: row.buy_price,
   sellPrice: row.sell_price,
   stock: row.stock,
-  created_at: row.created_at,
 });
 
 const extractRelationName = (
-  relation?: RelationRow | RelationRow[] | null,
+  relation?: RelationRow | RelationRow[] | null
 ): string => {
   if (!relation) return "";
   if (Array.isArray(relation)) {
