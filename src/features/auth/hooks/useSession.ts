@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseService } from "@/lib/supabaseService";
 import { Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
@@ -8,14 +8,14 @@ export function useSession() {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await supabaseService.auth.getSession();
       setSession(data.session);
       setIsLoading(false);
     };
 
     getSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
+    const { data: listener } = supabaseService.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
       }
